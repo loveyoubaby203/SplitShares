@@ -6,9 +6,9 @@ using UnityEngine.SceneManagement;
 
 public class Splash : MonoBehaviour
 {
-    bool m_bLoading = false;
+    //bool m_bLoading = false;
     float m_fCoolDown = 3.0f;
-    float m_fTimer = 0.0f;
+    //float m_fTimer = 0.0f;
     // Start is called before the first frame update
     void Start()
     {
