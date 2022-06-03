@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using System;
+using System.Net;
 
 public class Main : MonoBehaviour
 {
@@ -26,8 +27,10 @@ public class Main : MonoBehaviour
     int m_nOps = 0;
     int m_nCreat = 0;
     long m_nCoinsPerSecond = 0;
+    string m_sBTCPrice = "0.00";
 
     public Text m_tTotalBtc;
+    public Text m_tBtcPrice;
     public Text m_tMiningPool;
     public Text m_tAbleFunds;
     public Text m_tUnsold;
@@ -48,6 +51,7 @@ public class Main : MonoBehaviour
     public Text[] m_Logos;
 
     float m_fTimer = 0.0f;
+    float m_fBtcTimer = 0.0f;
     float m_fAutoBoost = 1.0f;
     List<string> m_ListLogs = new List<string>();
     List<long> m_ListTrustAt = new List<long>();
@@ -82,6 +86,20 @@ public class Main : MonoBehaviour
     {
         SellBitcoin();
         AutoMining();
+    }
+
+    void GetBTCPrice() 
+    {
+        string uri = String.Format("https://blockchain.info/tobtc?currency=USD&value={0}", 1);
+
+        WebClient client = new WebClient();
+        client.UseDefaultCredentials = true;
+        string data = client.DownloadString(uri);
+
+        double result = Convert.ToDouble(data);
+        double btcprice = Math.Round((1.0f / result), 2);
+        m_sBTCPrice = btcprice.ToString();
+        Debug.Log("BTC = " + m_sBTCPrice);
     }
 
     void AutoMining()
@@ -136,10 +154,16 @@ public class Main : MonoBehaviour
         AddTrust();
 
         m_fTimer += Time.deltaTime;
+        m_fBtcTimer += Time.deltaTime;
         if (m_fTimer > 1.0f)
         {
             m_fTimer = 0.0f;
             EventPerSecond();
+        }
+        if (m_fBtcTimer > 0.5f)
+        {
+            m_fBtcTimer = 0.0f;
+            GetBTCPrice();
         }
         m_tTotalBtc.text = API_GetStringFromLong(m_nTotalBtc);
         m_tMiningPool.text = API_GetStringFromLong(m_nMiningPool) + " Mining Pool";
@@ -159,6 +183,7 @@ public class Main : MonoBehaviour
         m_tOps.text = "Operations : " + API_GetStringFromLong(m_nOps) + "/" + API_GetStringFromLong(m_nMemory * 1000);
         m_tCreat.text = "Creativity : " + API_GetStringFromLong(m_nCreat);
         m_tCoinsPerSecond.text = "Coins per second : " + API_GetStringFromLong(m_nCoinsPerSecond);
+        m_tBtcPrice.text = "$" + m_sBTCPrice;
     }
 
     public void MiningManual()
